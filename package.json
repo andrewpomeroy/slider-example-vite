@@ -7,6 +7,9 @@
     "build": "tsc && vite build",
     "preview": "vite preview"
   },
+  "stackblitz": {
+    "startCommand": "npm run dev"
+  },
   "dependencies": {
     "@heroicons/react": "^2.0.13",
     "@radix-ui/react-tooltip": "^1.0.6",
