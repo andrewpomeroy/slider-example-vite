@@ -1,23 +1,28 @@
-import { useState } from 'react'
-import logo from './logo.svg'
-import './App.css'
+import {
+  motion,
+  MotionConfig,
+  useMotionValue,
+  useTransform,
+} from "framer-motion";
+import { useEffect, useState } from "react";
+import useMeasure from "react-use-measure";
+import Slider from "../src/components/Slider";
+import { TooltipProvider } from "../src/components/ui/tooltip";
 
-function App() {
-  const [count, setCount] = useState(0)
-
+export default function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>Hello Vite + React!</p>
-        <p>
-          <button type="button" onClick={() => setCount((count) => count + 1)}>
-            count is: {count}
-          </button>
-        </p>
-      </header>
-    </div>
-  )
+    <MotionConfig transition={transition}>
+      <TooltipProvider>
+        <div className="flex items-center justify-center h-full max-h-[800px] py-16">
+          <div className="w-[375px] h-full bg-gray-800 rounded-2xl flex flex-col justify-center px-4">
+            <div className="flex flex-1 flex-col items-center justify-center">
+              <Slider />
+            </div>
+          </div>
+        </div>
+      </TooltipProvider>
+    </MotionConfig>
+  );
 }
 
-export default App
+let transition = { type: "spring", bounce: 0, duration: 0.3 };
