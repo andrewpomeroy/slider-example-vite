@@ -137,6 +137,7 @@ const Slider = ({}) => {
             setPressed(true);
             setNewProgress(event);
           }}
+          // TODO: onMouseUp doesn't fire when you release the mouse outside the slider
           onMouseUp={() => setPressed(false)}
           onMouseMove={handleMouseMove}
           onPointerEnter={() => setHovered(true)}
@@ -195,7 +196,9 @@ const Slider = ({}) => {
           {/* Slider-knobTouchTarget */}
           <div
             style={{
-              transform: `translateX(calc(${knobTransformX}px - 50%))`,
+              left: 0,
+              top: "50%",
+              transform: `translate(calc(${knobTransformX}px - 50%), -50%)`,
             }}
             className={`Slider-knobTouchTarget ${
               pressed ? "Slider-knobTouchTarget--pressed" : ""
