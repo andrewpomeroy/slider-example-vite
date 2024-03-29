@@ -1,0 +1,112 @@
+:root {
+  --color--primary: #3b82f6;
+}
+
+.SliderContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+}
+
+.Slider {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+}
+
+.Slider-trackLayout {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  cursor: pointer;
+}
+
+.Slider-track {
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+}
+
+.Slider-track-background {
+  height: 100%;
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.Slider-track-fill {
+  background: var(--color--primary);
+  position: absolute;
+  width: 20%;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+}
+
+.Slider-tooltipSurrogate {
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+}
+
+.Slider-hoverTimeMarker {
+  position: absolute;
+  left: -0.5px;
+  top: 0;
+  width: 1px;
+  height: 100%;
+  background: #3b82f6;
+  opacity: 0;
+}
+.Slider-hoverTimeMarker.hovered {
+  opacity: 1;
+}
+
+.Slider-tooltipContent {
+  /* No specific styles */
+}
+
+.Slider-knobTouchTarget {
+  position: absolute;
+  left: 0;
+  top: 0;
+  transform-origin: center;
+  cursor: grab;
+}
+.Slider-knobTouchTarget--pressed {
+  cursor: grabbing;
+}
+
+.Slider-knob {
+  width: 16px;
+  height: 16px;
+  margin: 4px;
+  background: white;
+  border-radius: 50%;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+  transform-origin: center;
+  transition: all 0.2s ease-in-out;
+}
+
+.CurrentTime {
+  user-select: none;
+  margin-top: 8px;
+  text-align: center;
+  font-size: 14px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+.CurrentTime.hovered,
+.CurrentTime.pressed {
+  color: rgb(255, 255, 255);
+}
+
+.PlayPauseButton {
+  margin-top: 8px;
+}

@@ -8,6 +8,7 @@ import { useEffect, useState } from "react";
 import useMeasure from "react-use-measure";
 import Slider from "../src/components/Slider";
 import { TooltipProvider } from "../src/components/ui/tooltip";
+import "./components/slider.css";
 
 export default function App() {
   return (

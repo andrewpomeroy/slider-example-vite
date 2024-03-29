@@ -69,7 +69,9 @@ export const getSegmentTransforms = (
 };
 
 const Slider = ({}) => {
-  const chapterSegments = getChapterSegments(CHAPTERS, TOTAL_TIME);
+  const initialHeight = 4;
+  const height = 8;
+  const buffer = 12;
   const [ref, bounds] = useMeasure();
   const [hovered, setHovered] = useState(false);
   const [knobHovered, setKnobHovered] = useState(false);
@@ -123,9 +125,11 @@ const Slider = ({}) => {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center w-full">
+    // SliderContainer
+    <div className="SliderContainer">
       {/* Slider */}
-      <div className="relative flex items-center justify-center w-full">
+      <div className="Slider">
+        {/* Slider-trackLayout */}
         <motion.div
           animate={state}
           onMouseDown={(event) => {
@@ -133,92 +137,74 @@ const Slider = ({}) => {
             setPressed(true);
             setNewProgress(event);
           }}
-          // TODO: onMouseUp doesn't fire when you release the mouse outside the slider
           onMouseUp={() => setPressed(false)}
           onMouseMove={handleMouseMove}
           onPointerEnter={() => setHovered(true)}
           onPointerLeave={() => setHovered(false)}
           style={{
-            height: TRACK_HEIGHT_HOVERED + TRACK_BUFFER,
-            paddingTop: TRACK_BUFFER,
-            paddingBottom: TRACK_BUFFER,
+            height: height + buffer,
+            paddingTop: buffer,
+            paddingBottom: buffer,
           }}
-          className="flex w-full items-center justify-center relative touch-none cursor-pointer grow-0"
+          className="Slider-trackLayout"
           initial={false}
           ref={ref}
         >
+          {/* Slider-track */}
           <motion.div
-            className="relative w-full flex flex-col items-center justify-center"
-            style={{
-              height: TRACK_HEIGHT_INITIAL,
+            initial={false}
+            variants={{
+              idle: { height: initialHeight },
+              hovered: { height },
+              pressed: { height },
             }}
+            className="Slider-track"
           >
-            <div className="w-full flex-1 bg-white/20" />
-            {chapterSegments.map((segment, index) => {
-              return (
-                <ChapterSegment
-                  isFirst={index === 0}
-                  isLast={index === chapterSegments.length - 1}
-                  background={"bg-gray-500"}
-                  segment={segment}
-                  totalTime={TOTAL_TIME}
-                  currentTime={TOTAL_TIME}
-                  key={index}
-                />
-              );
-            })}
-            {chapterSegments.map((segment, index) => {
-              return (
-                <ChapterSegment
-                  isFirst={index === 0}
-                  isLast={index === chapterSegments.length - 1}
-                  background={"bg-primary"}
-                  segment={segment}
-                  totalTime={TOTAL_TIME}
-                  currentTime={currentTime}
-                  key={index}
-                />
-              );
-            })}
+            {/* Slider-track-background */}
+            <div className="Slider-track-background" />
+            {/* Slider-track-fill */}
+            <motion.div style={{ width }} className="Slider-track-fill" />
           </motion.div>
           {/* Pointer-tooltip surrogate */}
-          <div className="pointer-events-none">
+          {/* Slider-tooltipRoot */}
+          <div className="Slider-tooltipRoot">
             <Tooltip open={hovered && !knobHovered && !pressed}>
               <TooltipTrigger asChild>
+                {/* Slider-tooltipSurrogate */}
                 <motion.div
-                  className="absolute left-0 top-0 h-full"
+                  className="Slider-tooltipSurrogate"
                   style={{
                     x: tooltipX,
                   }}
                   aria-hidden={true}
                 >
+                  {/* Slider-hoverTimeMarker */}
                   <motion.div
-                    className={`absolute left-[-.5px] top-0 w-[1px] h-full bg-blue-300 ${
-                      hovered && !knobHovered ? "opacity-100" : "opacity-0"
+                    className={`Slider-hoverTimeMarker ${
+                      hovered && !knobHovered ? "hovered" : ""
                     }`}
                   />
                 </motion.div>
               </TooltipTrigger>
               <TooltipContent asChild>
+                {/* Slider-tooltipContent */}
                 <motion.div>{tooltipContent}</motion.div>
               </TooltipContent>
             </Tooltip>
           </div>
-          {/* Knob */}
+          {/* Slider-knobTouchTarget */}
           <div
             style={{
               transform: `translateX(calc(${knobTransformX}px - 50%))`,
             }}
-            className={`absolute left-0 top-50% origin-center ${
-              pressed ? "cursor-grabbing" : "cursor-grab"
+            className={`Slider-knobTouchTarget ${
+              pressed ? "Slider-knobTouchTarget--pressed" : ""
             }`}
             onMouseEnter={() => setKnobHovered(true)}
             onMouseLeave={() => setKnobHovered(false)}
           >
-            <motion.div
-              className={`w-4 h-4 m-1 bg-white rounded-full shadow-lg origin-center transition-all
-              `}
-            />
+            {/* Slider-knob */}
+            <motion.div className="Slider-knob" />
           </div>
         </motion.div>
       </div>
@@ -228,11 +214,14 @@ const Slider = ({}) => {
         animate={{
           color: hovered || pressed ? "rgb(255,255,255)" : "rgb(120,113,108)",
         }}
-        className={`select-none mt-2 text-center text-sm font-semibold tabular-nums`}
+        className={`CurrentTime ${hovered || pressed ? "hovered" : ""}`}
       >
         {currentTimeDisplay} / {msToTime(TOTAL_TIME)}
       </motion.div>
-      <button className="mt-2" onClick={() => (playing ? pause() : play())}>
+      <button
+        className="PlayPauseButton"
+        onClick={() => (playing ? pause() : play())}
+      >
         {playing ? "Pause" : "Play"}
       </button>
     </div>
