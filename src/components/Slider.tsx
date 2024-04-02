@@ -1,10 +1,4 @@
-import {
-  MotionValue,
-  motion,
-  useMotionTemplate,
-  useMotionValue,
-  useTransform,
-} from "framer-motion";
+import { motion, useMotionValue, useTransform } from "framer-motion";
 import React, { useCallback, useEffect, useState, useRef } from "react";
 import useMeasure from "react-use-measure";
 import { TooltipContent, TooltipTrigger, Tooltip } from "./ui/tooltip";
@@ -36,62 +30,14 @@ const progressRatioToTime = (progressRatio: number) => {
   return msToTime(progressRatio * totalDuration);
 };
 
-// const CHAPTERS = [0, 10000, 20000, 40000, 55000, 60000, 70000];
-
-// const getChapterSegments = (chapters: number[], endTime: number) => {
-//   const segments = chapters.map((chapter, index) => {
-//     const nextChapter = chapters[index + 1];
-//     const end = nextChapter || endTime;
-//     return {
-//       start: chapter,
-//       end,
-//     };
-//   });
-//   return segments;
-// };
-
-// export const getSegmentTransforms = (
-//   segment: { start: number; end: number },
-//   {
-//     currentTime,
-//     totalTime,
-//     isFirst,
-//     isLast,
-//   }: {
-//     currentTime: number;
-//     totalTime: number;
-//     isFirst: boolean;
-//     isLast: boolean;
-//   }
-// ) => {
-//   const segmentTimeElapsed = Math.min(
-//     Math.max(0, currentTime - segment.start),
-//     segment.end - segment.start
-//   );
-//   // const left = `${(segment.start / totalTime) * 100}%`;
-//   const left = `calc(${(segment.start / totalTime) * 100}% + ${
-//     !isFirst ? CHAPTER_BUFFER_PX * 2 : 0
-//   }px)`;
-//   // const width = `${(segmentTimeElapsed / totalTime) * 100}%`;
-//   const width = `calc(${(segmentTimeElapsed / totalTime) * 100}% - ${
-//     isFirst || isLast ? 0 : CHAPTER_BUFFER_PX * 2
-//   }px)`;
-//   return {
-//     left,
-//     width,
-//   };
-// };
-
 const Slider = ({}) => {
   const initialHeight = 4;
   const height = 8;
   const buffer = 12;
   const [ref, bounds] = useMeasure();
-  const rootRef = useRef<HTMLDivElement>(null);
   const [hovered, setHovered] = useState(false);
   const [knobHovered, setKnobHovered] = useState(false);
   const [pressed, setPressed] = useState(false);
-  // const timelineMouseX = useMotionValue(0);
   const [timelineMouseX, setTimelineMouseX] = useState(0);
   const [tooltipContent, setTooltipContent] = useState("");
   const { play, pause, playing, skipTo, setPreCommitTime } = useVideoPlayback(
@@ -100,21 +46,11 @@ const Slider = ({}) => {
   );
   const progressDisplayTime = useMotionValue<number>(0);
 
-  // const currentTimeRef = useRef<number>();
   useEffect(() => {
     const unsubscribe = useStore.subscribe((state) => {
-      // currentTimeRef.state.currentTime
-      currentTimeValue.set(state.currentTime);
       if (!pressed) {
         progressDisplayTime.set(state.currentTime);
-      }
-    });
-    return () => unsubscribe();
-  }, [pressed]);
-
-  useEffect(() => {
-    const unsubscribe = useStore.subscribe((state) => {
-      if (pressed && state.preCommitTime) {
+      } else if (state.preCommitTime !== null) {
         progressDisplayTime.set(state.preCommitTime);
       }
     });
@@ -129,28 +65,14 @@ const Slider = ({}) => {
     return `calc(${v / totalDuration} * var(--slider-width) - 50%)`;
   });
 
-  const currentTimeValue = useMotionValue<number>(0);
-  // const currentTimeString = useTransform(currentTimeValue, (v) => {
-  //   return msToTime(v);
-  // })
-  const currentTimePct = useTransform(currentTimeValue, (v) => {
-    return v / totalDuration;
-  });
-
-  const state = pressed ? "pressed" : hovered ? "hovered" : "idle";
-
   const absoluteToRelativeXPosition = useCallback(
-    (event: React.MouseEvent<HTMLElement>) => {
-      const { clientX } = event.nativeEvent;
+    (event: React.MouseEvent<HTMLElement> | MouseEvent) => {
+      const clientX =
+        "nativeEvent" in event && event.nativeEvent instanceof MouseEvent
+          ? event.nativeEvent.clientX
+          : event.clientX;
       const { left } = bounds;
       return clientX - left;
-    },
-    [bounds]
-  );
-
-  const relativeXToProgress = useCallback(
-    (x: number) => {
-      return clamp(x / bounds.width, 0, 1);
     },
     [bounds]
   );
@@ -163,63 +85,57 @@ const Slider = ({}) => {
     }
   };
 
-  const updateProgressX = useCallback(
-    (x: number) => {
-      const relativeX = clamp(x - bounds.left, 0, bounds.width);
-      updateCursorX(relativeX);
-      const newProgress = clamp(relativeX / bounds.width, 0, 1);
-      // progressDisplayTime.set(newProgress * totalDuration);
-      setPreCommitTime(newProgress * totalDuration);
-    },
-    [bounds]
-  );
-
-  const handleMouseMove = useCallback(
-    (event: React.MouseEvent<HTMLDivElement>) => {
-      // const offsetX = absoluteToRelativeXPosition(event);
-      // timelineMouseX.set(offsetX);
-      // if (pressed) {
-      //   setNewProgress(event);
-      // }
-
-      // If dragging, pan event handler will take care of this
-      if (!pressed) {
-        const offsetX = absoluteToRelativeXPosition(event);
-        updateCursorX(offsetX);
-      }
-    },
-    [pressed, updateProgressX, absoluteToRelativeXPosition]
-  );
-
-  const handleClick = useCallback(
-    (event: React.MouseEvent<HTMLDivElement>) => {
-      if (pressed) return;
-      updateProgressX(absoluteToRelativeXPosition(event));
-      commitTime();
-    },
-    [pressed, updateProgressX, absoluteToRelativeXPosition, commitTime]
-  );
-
-  const onPanX = (x: number) => {
-    updateProgressX(x);
-  };
-
-  const onPanXEnd = useCallback(
-    (x: number) => {
-      updateProgressX(x);
-      commitTime();
-    },
-    [skipTo, commitTime]
-  );
-
   const updateCursorX = useCallback(
     (x: number) => {
-      // timelineMouseX.set(x);
       setTimelineMouseX(clamp(x, 0, bounds.width));
       setTooltipContent(progressRatioToTime(x / bounds.width));
     },
     [progressRatioToTime, bounds]
   );
+
+  const updateProgressX = useCallback(
+    (x: number) => {
+      const newProgress = clamp(x / bounds.width, 0, 1);
+      setPreCommitTime(newProgress * totalDuration);
+    },
+    [bounds, updateCursorX, totalDuration, setPreCommitTime]
+  );
+
+  const handleMouseMove = useCallback(
+    (e: React.MouseEvent<HTMLElement> | MouseEvent, isDragging?: boolean) => {
+      const event = ("nativeEvent" in e && e.nativeEvent) || (e as MouseEvent);
+      const offsetX = absoluteToRelativeXPosition(event);
+      updateCursorX(offsetX);
+      if (pressed || isDragging) {
+        updateProgressX(offsetX);
+      }
+    },
+    [pressed, updateCursorX, updateProgressX, absoluteToRelativeXPosition]
+  );
+
+  const onMouseDown = useCallback(
+    (event: React.MouseEvent<HTMLElement>) => {
+      setPressed(true);
+      const onMouseMove = (event: MouseEvent) => {
+        // Using the boolean to force through a "pressed" state rather than wiring up a bunch of extra closure logic
+        handleMouseMove(event, true);
+      };
+      const onMouseUp = () => {
+        setPressed(false);
+        commitTime();
+        window.removeEventListener("mouseup", onMouseUp);
+        window.removeEventListener("mousemove", onMouseMove);
+      };
+      // handleMouseMove(event);
+      window.addEventListener("mouseup", onMouseUp);
+      window.addEventListener("mousemove", onMouseMove);
+      // Firing once initially, to respond to a simple click
+      handleMouseMove(event, true);
+    },
+    [handleMouseMove]
+  );
+
+  const animationState = pressed ? "pressed" : hovered ? "hovered" : "idle";
 
   return (
     // SliderContainer
@@ -227,7 +143,6 @@ const Slider = ({}) => {
       {/* Slider */}
       <div
         className="Slider"
-        ref={rootRef}
         style={
           {
             "--slider-width": `${bounds.width}px`,
@@ -236,24 +151,13 @@ const Slider = ({}) => {
       >
         {/* Slider-trackLayout */}
         <motion.div
-          animate={state}
-          // onMouseDown={(event) => {
-          //   event.preventDefault();
-          //   setPressed(true);
-          //   setNewProgress(event);
-          // }}
-          // TODO: onMouseUp doesn't fire when you release the mouse outside the slider
-          // onMouseUp={() => setPressed(false)}
-          // onMouseUp={handleClick}
-          onMouseMove={handleMouseMove}
+          animate={animationState}
+          onMouseDown={onMouseDown}
+          onMouseMove={(event) => {
+            if (!pressed) handleMouseMove(event);
+          }}
           onPointerEnter={() => setHovered(true)}
           onPointerLeave={() => setHovered(false)}
-          onPan={(event, info) => onPanX(info.point.x)}
-          onPanStart={() => setPressed(true)}
-          onPanEnd={(event, info) => {
-            onPanXEnd(info.point.x);
-            setPressed(false);
-          }}
           style={{
             height: height + buffer,
             paddingTop: buffer,
@@ -306,12 +210,8 @@ const Slider = ({}) => {
           <motion.div
             style={{
               left: 0,
-              // left: ,
               top: "50%",
-              // transform: `translate(calc(${knobTransformX}px - 50%), -50%)`,
-              // transform: `translate(0, -50%)`,
               y: "-50%",
-              // transform: `translate(-50%, -50%)`,
               x: knobTransformX,
             }}
             className={`Slider-knobTouchTarget ${
@@ -319,8 +219,6 @@ const Slider = ({}) => {
             }`}
             onMouseEnter={() => setKnobHovered(true)}
             onMouseLeave={() => setKnobHovered(false)}
-            // drag="x"
-            // dragConstraints={rootRef}
           >
             {/* Slider-knob */}
             <div className="Slider-knob" />
