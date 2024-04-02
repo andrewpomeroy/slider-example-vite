@@ -1,4 +1,5 @@
-export const TOTAL_TIME = 80000;
+export const MOCK_START_TIME = 80000;
+export const MOCK_END_TIME = 180000;
 export const CHAPTER_BUFFER_PX = 2;
 export const TRACK_HEIGHT_INITIAL = 6;
 export const TRACK_HEIGHT_HOVERED = 10;

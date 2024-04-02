@@ -5,6 +5,8 @@ import { useEffect, useRef } from "react";
 type VideoState = {
   playing: boolean;
   currentTime: number;
+  preCommitTime: number | null;
+  setPreCommitTime: (time: number) => void;
   startTime: number;
   totalDuration: number;
   play: () => void;
@@ -14,9 +16,13 @@ type VideoState = {
 };
 
 // Create the Zustand store
-const useStore = create<VideoState>((set, get) => ({
+export const useStore = create<VideoState>((set, get) => ({
   playing: false,
   currentTime: 0,
+  preCommitTime: null,
+  setPreCommitTime: (time: number) => {
+    set({ preCommitTime: time });
+  },
   startTime: 0,
   totalDuration: 0,
   play: () => {
@@ -67,6 +73,11 @@ function useVideoPlayback(initialTime: number, totalDuration: number) {
   // Effect for handling the play state and updating the current time
   useEffect(() => {
     const animate = (time: number) => {
+      // console.log(
+      //   "%c💣️ state.preCommitTime",
+      //   "background: aliceblue; color: dodgerblue; font-weight: bold",
+      //   state.preCommitTime
+      // );
       state.tick(time);
       if (state.playing) {
         frameId.current = requestAnimationFrame(animate);
@@ -91,6 +102,7 @@ function useVideoPlayback(initialTime: number, totalDuration: number) {
     playing: state.playing,
     currentTime: state.currentTime,
     skipTo: state.skipTo,
+    setPreCommitTime: state.setPreCommitTime,
   };
 }
 
