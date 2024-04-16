@@ -3,7 +3,7 @@ import React, { useCallback, useEffect, useState } from "react";
 import useMeasure from "react-use-measure";
 import { TooltipContent, TooltipTrigger, Tooltip } from "./ui/tooltip";
 import useVideoPlayback from "../hooks/useVideoPlayback";
-import { CHAPTER_BUFFER_PX, TOTAL_TIME } from "../constants";
+import { TOTAL_TIME } from "../constants";
 import {
   TRACK_HEIGHT_INITIAL,
   TRACK_HEIGHT_HOVERED,
@@ -34,38 +34,6 @@ const getChapterSegments = (chapters: number[], endTime: number) => {
     };
   });
   return segments;
-};
-
-export const getSegmentTransforms = (
-  segment: { start: number; end: number },
-  {
-    currentTime,
-    totalTime,
-    isFirst,
-    isLast,
-  }: {
-    currentTime: number;
-    totalTime: number;
-    isFirst: boolean;
-    isLast: boolean;
-  }
-) => {
-  const segmentTimeElapsed = Math.min(
-    Math.max(0, currentTime - segment.start),
-    segment.end - segment.start
-  );
-  // const left = `${(segment.start / totalTime) * 100}%`;
-  const left = `calc(${(segment.start / totalTime) * 100}% + ${
-    !isFirst ? CHAPTER_BUFFER_PX * 2 : 0
-  }px)`;
-  // const width = `${(segmentTimeElapsed / totalTime) * 100}%`;
-  const width = `calc(${(segmentTimeElapsed / totalTime) * 100}% - ${
-    isFirst || isLast ? 0 : CHAPTER_BUFFER_PX * 2
-  }px)`;
-  return {
-    left,
-    width,
-  };
 };
 
 const Slider = ({}) => {

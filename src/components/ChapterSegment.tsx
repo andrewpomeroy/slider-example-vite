@@ -1,7 +1,6 @@
 import React from "react";
 import { cn } from "../lib/utils";
-import { TRACK_BUFFER } from "../constants";
-import { getSegmentTransforms } from "./Slider";
+import { CHAPTER_BUFFER_PX, TRACK_BUFFER } from "../constants";
 import { trackHeightCn, hoverTrackHeightCn } from "../constants";
 
 export function ChapterSegment({
@@ -45,3 +44,28 @@ export function ChapterSegment({
     />
   );
 }
+
+const getSegmentTransforms = (
+  segment: { start: number; end: number; },
+  {
+    currentTime, totalTime, isFirst, isLast,
+  }: {
+    currentTime: number;
+    totalTime: number;
+    isFirst: boolean;
+    isLast: boolean;
+  }
+) => {
+  const segmentTimeElapsed = Math.min(
+    Math.max(0, currentTime - segment.start),
+    segment.end - segment.start
+  );
+  // const left = `${(segment.start / totalTime) * 100}%`;
+  const left = `calc(${(segment.start / totalTime) * 100}% + ${!isFirst ? CHAPTER_BUFFER_PX * 2 : 0}px)`;
+  // const width = `${(segmentTimeElapsed / totalTime) * 100}%`;
+  const width = `calc(${(segmentTimeElapsed / totalTime) * 100}% - ${isFirst || isLast ? 0 : CHAPTER_BUFFER_PX * 2}px)`;
+  return {
+    left,
+    width,
+  };
+};
